@@ -62,7 +62,7 @@ export function CharacterEditModal({
         : String(appearanceId ?? '')
 
     const [editingName, setEditingName] = useState(characterName)
-    const [editingDescription, setEditingDescription] = useState(description)
+    const [editingDescription, setEditingDescription] = useState(description || '（暂无描述）')
     const [editingIntroduction, setEditingIntroduction] = useState(introduction || '')
     const [aiModifyInstruction, setAiModifyInstruction] = useState('')
     const [isAiModifying, setIsAiModifying] = useState(false)
@@ -157,10 +157,11 @@ export function CharacterEditModal({
             setIsAiModifying(true)
 
             if (mode === 'asset-hub') {
+                const currentDescription = editingDescription.trim() || '（暂无描述）'
                 const data = await aiModifyAssetHub.mutateAsync({
                     characterId,
                     appearanceIndex: appearanceIndex ?? 0,
-                    currentDescription: editingDescription,
+                    currentDescription,
                     modifyInstruction: aiModifyInstruction,
                 })
                 if (data?.modifiedDescription) {

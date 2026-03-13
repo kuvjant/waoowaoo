@@ -164,6 +164,15 @@ export const POST = apiHandler(async (request: NextRequest) => {
   if (isErrorResponse(authResult)) return authResult
   const { session } = authResult
 
+  // 校验 session 中的用户是否仍在 DB 中存在（避免 DB 重置/迁移后旧 session 导致 P2003）
+  const userExists = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true }
+  })
+  if (!userExists) {
+    throw new ApiError('UNAUTHORIZED', { message: 'User no longer exists, please sign in again' })
+  }
+
   const { name, description } = await request.json()
 
   if (!name || name.trim().length === 0) {

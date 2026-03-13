@@ -7,7 +7,7 @@ import { BaseVideoGenerator, VideoGenerateParams, GenerateResult } from './base'
 import { getProviderConfig } from '@/lib/api-config'
 import { normalizeToBase64ForGeneration } from '@/lib/media/outbound-image'
 
-const VIDU_BASE_URL = 'https://api.vidu.cn/ent/v2'
+const VIDU_BASE_URL = 'https://api.vidu.com/ent/v2'
 const VIDU_STANDARD_RATIOS = new Set(['16:9', '9:16', '1:1'])
 const VIDU_Q2_EXTRA_RATIOS = new Set(['4:3', '3:4', '21:9', '2:3', '3:2', 'auto'])
 const VIDU_AUDIO_TYPES = new Set(['all', 'speech_only', 'sound_effect_only'])
@@ -638,7 +638,7 @@ export class ViduVideoGenerator extends BaseVideoGenerator {
             const response = await fetch(`${VIDU_BASE_URL}${endpoint}`, {
                 method: 'POST',
                 headers: {
-                    Authorization: `Token ${apiKey}`,
+                    'Authorization': `Token ${apiKey}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(requestBody),

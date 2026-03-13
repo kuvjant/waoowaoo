@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { MediaImage, type MediaImageProps } from './MediaImage'
 
 type MediaImageWithLoadingProps = MediaImageProps & {
@@ -9,6 +9,8 @@ type MediaImageWithLoadingProps = MediaImageProps & {
   keepSkeletonOnError?: boolean
   showLoadingIndicator?: boolean
   loadingIndicatorClassName?: string
+  /** 图片加载失败时显示的提示（如网络/存储问题） */
+  errorHint?: ReactNode
 }
 
 function mergeClassNames(...classNames: Array<string | undefined | false>): string {
@@ -24,6 +26,7 @@ export function MediaImageWithLoading({
   keepSkeletonOnError = false,
   showLoadingIndicator = true,
   loadingIndicatorClassName,
+  errorHint,
   onLoad,
   onError,
   ...restProps
@@ -39,6 +42,7 @@ export function MediaImageWithLoading({
   if (!src) return null
 
   const shouldShowSkeleton = !isLoaded && (!isError || keepSkeletonOnError)
+  const showErrorHint = isError && errorHint
 
   const imageClassName = mergeClassNames(
     className,
@@ -86,6 +90,11 @@ export function MediaImageWithLoading({
         onError={handleError}
         {...restProps}
       />
+      {showErrorHint && (
+        <div className="absolute inset-0 z-[2] flex flex-col items-center justify-center bg-[var(--glass-overlay)] p-2 text-center">
+          <span className="text-xs text-[var(--glass-tone-danger-fg)]">{errorHint}</span>
+        </div>
+      )}
     </div>
   )
 }

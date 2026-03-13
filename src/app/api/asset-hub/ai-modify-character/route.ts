@@ -15,12 +15,20 @@ export const POST = apiHandler(async (request: NextRequest) => {
   if (isErrorResponse(authResult)) return authResult
   const { session } = authResult
 
-  const payload = await request.json()
+  const payload = await request.json().catch(() => null)
   const { characterId, appearanceIndex, currentDescription, modifyInstruction } = payload ?? {}
 
-  if (!characterId || appearanceIndex === undefined || !currentDescription || !modifyInstruction) {
-    throw new ApiError('INVALID_PARAMS')
+  const missing: string[] = []
+  if (!characterId || typeof characterId !== 'string' || !characterId.trim()) missing.push('characterId')
+  if (appearanceIndex === undefined || appearanceIndex === null) missing.push('appearanceIndex')
+  if (!currentDescription || typeof currentDescription !== 'string' || !currentDescription.trim()) missing.push('currentDescription')
+  if (!modifyInstruction || typeof modifyInstruction !== 'string' || !modifyInstruction.trim()) missing.push('modifyInstruction')
+  if (missing.length > 0) {
+    throw new ApiError('INVALID_PARAMS', { message: `Missing or invalid: ${missing.join(', ')}` })
   }
+
+  const appearanceIndexNum = Number(appearanceIndex)
+  const safeAppearanceIndex = Number.isFinite(appearanceIndexNum) && appearanceIndexNum >= 0 ? appearanceIndexNum : 0
 
   const character = await prisma.globalCharacter.findUnique({
     where: { id: characterId },
@@ -37,9 +45,12 @@ export const POST = apiHandler(async (request: NextRequest) => {
     targetType: 'GlobalCharacter',
     targetId: characterId,
     routePath: '/api/asset-hub/ai-modify-character',
-    body: { characterId, appearanceIndex, currentDescription, modifyInstruction },
-    dedupeKey: `asset_hub_ai_modify_character:${characterId}:${appearanceIndex}`})
+    body: { characterId, appearanceIndex: safeAppearanceIndex, currentDescription, modifyInstruction },
+    dedupeKey: `asset_hub_ai_modify_character:${characterId}:${safeAppearanceIndex}`,
+  })
   if (asyncTaskResponse) return asyncTaskResponse
 
-  throw new ApiError('INVALID_PARAMS')
+  throw new ApiError('INVALID_PARAMS', {
+    message: 'Task submission not available (LLM observe or async mode may be disabled)',
+  })
 })

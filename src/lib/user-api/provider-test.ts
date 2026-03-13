@@ -635,7 +635,7 @@ async function testViduProvider(apiKey: string): Promise<TestProviderResult> {
 
   // 🔥 使用免费的 GET /ent/v2/credits 积分查询端点，不消耗任何资源
   try {
-    const response = await fetch('https://api.vidu.cn/ent/v2/credits', {
+    const response = await fetch('https://api.vidu.com/ent/v2/credits', {
       headers: {
         'Authorization': `Token ${apiKey}`,
       },

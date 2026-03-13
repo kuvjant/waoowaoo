@@ -92,11 +92,22 @@ export function resolveTaskErrorSummary(payload: unknown, fallbackMessage = 'Tas
     normalized?.code === 'MODEL_NOT_OPEN'
     || normalized?.code === 'EMPTY_RESPONSE'
 
+  const rawMessage = message || normalizedMessage || ''
+  const isViduAuthFailure =
+    normalized?.code === 'UNAUTHORIZED' &&
+    (rawMessage.toLowerCase().includes('vidu') || rawMessage.includes('401'))
+  const viduHint =
+    'Vidu 鉴权失败，请到 个人设置 → API 配置 中检查并更新 Vidu API Key，或在 platform.vidu.com 确认 Key 有效。'
+
+  const resolvedMessage = isViduAuthFailure
+    ? viduHint
+    : shouldPreferUserFriendlyMessage
+      ? (userFriendlyMessage || message || normalizedMessage || fallbackMessage)
+      : (message || userFriendlyMessage || normalizedMessage || fallbackMessage)
+
   return {
     code: normalized?.code || code || null,
-    message: shouldPreferUserFriendlyMessage
-      ? (userFriendlyMessage || message || normalizedMessage || fallbackMessage)
-      : (message || userFriendlyMessage || normalizedMessage || fallbackMessage),
+    message: resolvedMessage,
     cancelled: false,
   }
 }

@@ -46,7 +46,7 @@ export function CharacterEditModal({
     const t = useTranslations('assets')
 
     const [editingName, setEditingName] = useState(characterName)
-    const [editingDescription, setEditingDescription] = useState(description)
+    const [editingDescription, setEditingDescription] = useState(description || '（暂无描述）')
     const [aiModifyInstruction, setAiModifyInstruction] = useState('')
     const [isAiModifying, setIsAiModifying] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
@@ -73,10 +73,11 @@ export function CharacterEditModal({
 
         try {
             setIsAiModifying(true)
+            const currentDescription = editingDescription.trim() || '（暂无描述）'
             const data = await modifyDescription.mutateAsync({
                 characterId,
                 appearanceIndex,
-                currentDescription: editingDescription,
+                currentDescription,
                 modifyInstruction: aiModifyInstruction,
             })
             setEditingDescription(data.modifiedDescription ?? '')

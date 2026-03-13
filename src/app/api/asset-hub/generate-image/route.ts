@@ -1,3 +1,14 @@
+/**
+ * POST /api/asset-hub/generate-image
+ *
+ * 图片生成发送链路（排查「界面不显示图片」时参考）：
+ * 1. UI 调用本接口 -> submitTask(ASSET_HUB_IMAGE) -> 任务入队
+ * 2. Worker 消费任务 -> handleAssetHubImageTask -> resolveImageSourceFromGeneration -> generateImage(外网 API)
+ * 3. 生成成功 -> 上传存储 -> 更新 DB imageUrl/imageUrls
+ * 4. UI 通过 useTaskTargetStateMap 获知任务状态，通过 GET /api/asset-hub/characters 拉取最新 imageUrl
+ *
+ * 常见问题：任务失败报 NETWORK_ERROR -> 多为 Worker 访问外网失败，检查 .env PROXY_URL 与代理服务；接口报错 -> 多为参数或权限；有 imageUrl 但界面不显示 -> 多为图片加载失败（存储/CORS），见 MediaImageWithLoading errorHint。
+ */
 import { NextRequest, NextResponse } from 'next/server'
 import { requireUserAuth, isErrorResponse } from '@/lib/api-auth'
 import { apiHandler, ApiError, getRequestId } from '@/lib/api-errors'

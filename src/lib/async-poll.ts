@@ -870,7 +870,7 @@ async function queryViduTaskStatus(
         _ulogInfo(`${logPrefix} 查询任务 task_id=${taskId}`)
 
         // 🔥 正确的查询接口路径：/tasks/{id}/creations
-        const response = await fetch(`https://api.vidu.cn/ent/v2/tasks/${taskId}/creations`, {
+        const response = await fetch(`https://api.vidu.com/ent/v2/tasks/${taskId}/creations`, {
             headers: {
                 'Authorization': `Token ${apiKey}`
             }

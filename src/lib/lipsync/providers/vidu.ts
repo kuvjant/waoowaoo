@@ -77,7 +77,7 @@ export async function submitViduLipSync(
   const videoUrl = normalizeProviderPullUrl(params.videoUrl, 'video_url')
   const audioUrl = normalizeProviderPullUrl(params.audioUrl, 'audio_url')
   const { apiKey } = await getProviderConfig(context.userId, context.providerId)
-  const response = await fetch('https://api.vidu.cn/ent/v2/lip-sync', {
+  const response = await fetch('https://api.vidu.com/ent/v2/lip-sync', {
     method: 'POST',
     headers: {
       Authorization: `Token ${apiKey}`,

@@ -37,7 +37,7 @@ export async function register() {
     // Phase 2: 将所有 queued 任务重新加入 BullMQ 队列
     // 解决 Redis 重启后 DB 仍为 queued 但 BullMQ Job 丢失的孤儿任务问题
     try {
-      const { addTaskJob } = await import('@/lib/task/queues')
+      const { addTaskJob, removeTaskJob } = await import('@/lib/task/queues')
       const { locales } = await import('@/i18n/routing')
       const { TASK_STATUS, TASK_TYPE } = await import('@/lib/task/types')
       type TaskBillingInfo = import('@/lib/task/types').TaskBillingInfo
@@ -131,6 +131,7 @@ export async function register() {
 
         let enqueued = 0
         let failed = 0
+        let lastFailureReason: string | null = null
 
         for (const task of queuedTasks) {
           try {
@@ -177,6 +178,8 @@ export async function register() {
               userId: task.userId,
               trace: null,
             }
+            // 若 Redis 中仍有同 id 的 job（如上次 worker 崩溃未清理），先移除再入队，避免重复 jobId 报错
+            await removeTaskJob(task.id)
             await addTaskJob(jobData, {
               priority: typeof task.priority === 'number' ? task.priority : 0,
             })
@@ -184,6 +187,7 @@ export async function register() {
             enqueued++
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error)
+            lastFailureReason = message
             await markTaskEnqueueFailed(task.id, message || 're-enqueue failed')
             _ulogError(`[Instrumentation] Failed to re-enqueue task ${task.id}:`, message)
             failed++
@@ -194,7 +198,9 @@ export async function register() {
           _ulogInfo(`[Instrumentation] Re-enqueued ${enqueued} orphaned tasks into BullMQ`)
         }
         if (failed > 0) {
-          _ulogError(`[Instrumentation] Failed to re-enqueue ${failed} tasks`)
+          _ulogError(
+            `[Instrumentation] Failed to re-enqueue ${failed} tasks${lastFailureReason ? ` (e.g. ${lastFailureReason.slice(0, 120)})` : ''}`,
+          )
         }
       }
     } catch (error) {

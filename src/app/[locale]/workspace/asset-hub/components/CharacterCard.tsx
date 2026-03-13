@@ -311,6 +311,7 @@ export function CharacterCard({ character, onImageClick, onImageEdit, onVoiceDes
                                         alt={`${character.name} ${index + 1}`}
                                         containerClassName="w-full min-h-[96px]"
                                         className="w-full h-auto object-contain"
+                                        errorHint="图片加载失败，请刷新重试。"
                                     />
                                     <div className={`absolute bottom-2 left-2 text-xs px-2 py-0.5 rounded ${isSelected ? 'glass-chip glass-chip-success' : 'glass-chip glass-chip-neutral'}`}>
                                         {tAssets('image.optionNumber', { number: index + 1 })}
@@ -394,6 +395,7 @@ export function CharacterCard({ character, onImageClick, onImageEdit, onVoiceDes
                             containerClassName="w-full min-h-[120px]"
                             className="w-full h-auto object-contain cursor-zoom-in"
                             onClick={() => onImageClick?.(displayImageUrl)}
+                            errorHint="图片加载失败，可能是网络或存储地址问题，请刷新重试。"
                         />
                         {/* 操作按钮 - 非生成时显示 */}
                         {!isAppearanceTaskRunning && (

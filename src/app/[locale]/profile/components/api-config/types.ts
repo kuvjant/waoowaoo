@@ -352,7 +352,7 @@ export const PROVIDER_TUTORIALS: ProviderTutorial[] = [
         steps: [
             {
                 text: 'vidu_step1',
-                url: 'https://platform.vidu.cn/api-keys'
+                url: 'https://platform.vidu.com/api-keys'
             }
         ]
     },

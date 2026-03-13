@@ -65,11 +65,9 @@ if (!globalForRedis.__waoowaooRedis) {
 export const redis = singleton.app || (singleton.app = createAppRedis())
 export const queueRedis = singleton.queue || (singleton.queue = createQueueRedis())
 
+/** 专用于 SUBSCRIBE/UNSUBSCRIBE 的独立连接，避免与 publish 等命令混用同一连接导致 "Connection in subscriber mode" 报错 */
 export function createSubscriber() {
-  const client = new Redis({
-    ...buildBaseConfig(),
-    maxRetriesPerRequest: null,
-  })
+  const client = redis.duplicate({ maxRetriesPerRequest: null })
   onConnectLog('sub', client)
   return client
 }
