@@ -58,7 +58,8 @@ export const POST = apiHandler(async (
       rawStepKey = rawStepKey || runMatch[2] || ''
     }
   }
-  const stepKey = decodeURIComponent(typeof rawStepKey === 'string' ? rawStepKey : Array.isArray(rawStepKey) ? rawStepKey.join('/') : '').trim()
+  const rawStep: string | string[] = typeof rawStepKey === 'string' ? rawStepKey : Array.isArray(rawStepKey) ? (rawStepKey as string[]) : ''
+  const stepKey = decodeURIComponent(typeof rawStep === 'string' ? rawStep : rawStep.join('/')).trim()
   if (!runId || !stepKey) {
     throw new ApiError('INVALID_PARAMS', {
       message: 'runId and stepKey are required',

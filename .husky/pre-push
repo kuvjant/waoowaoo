@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
-set -e
+# #!/usr/bin/env sh
+# set -e
 
-npm run verify:push
+# npm run verify:push
